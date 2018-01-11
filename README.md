@@ -5,7 +5,9 @@ REST APIs to handle stock availability.
 ### start the service
 
 ```bash
-git clone 
+git clone https://vinayanayak@bitbucket.org/vinayanayak/stock-management.git
+cd stock-management-api
+mvn clean install
 mvn spring-boot:run
 ```
 
