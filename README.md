@@ -16,6 +16,15 @@ mvn spring-boot:run
 mvn test
 ```
 
+### decisions and assumptions made about the solution
+- Used cuncurrent hashmap to taking care of modifying data
+
+### TODOs and improvements 
+- handle race condition
++ more test coverage
+- rewrite in scala
+- learn docker and write docker file
+
 ### APIs
 - update stock of a particular product
 
@@ -49,6 +58,4 @@ curl -X GET \
   'http://localhost:8080/statistics?time=today'
 ```
 
-### TODOs and improvements 
-+ more test coverage
-- rewrite in scala
+
