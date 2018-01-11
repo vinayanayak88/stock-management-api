@@ -1,18 +1,13 @@
 package com.commerce.converters;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.commerce.constant.Constant;
 import com.commerce.domain.StockModel;
 import com.commerce.domain.StockStatistics;
-import com.commerce.exception.ValidationException;
+import com.commerce.util.DateFormatUtil;
 
 /**
  * @author vinayanayak
@@ -21,6 +16,9 @@ import com.commerce.exception.ValidationException;
  */
 @Component
 public class StockModelToStockStatistics implements Converter<StockModel, StockStatistics>{
+	
+	@Autowired
+	DateFormatUtil util;
 
 	@Override
 	public StockStatistics convert(StockModel stock) {
@@ -31,17 +29,13 @@ public class StockModelToStockStatistics implements Converter<StockModel, StockS
 		statistics.setProductId(stock.getProductId());
 		statistics.setQuantity(stock.getQuantity());
 		if(stock.getTimeStamp() != null && !StringUtils.isEmpty(stock.getTimeStamp())) {
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'", Locale.getDefault());
-			simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-			try {
-				Date date = simpleDateFormat.parse(stock.getTimeStamp());
-				statistics.setTimeStamp(date.getTime());
-			} catch (Exception e) {
-				throw new ValidationException(Constant.INVALID_DATETIME);
-			}
+			long timeStamp = util.convertStringToTimeStamp(stock.getTimeStamp());
+			statistics.setTimeStamp(timeStamp);
 		}
 		return statistics;
 	}
+
+	
 
 	
 

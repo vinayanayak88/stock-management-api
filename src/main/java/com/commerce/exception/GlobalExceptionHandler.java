@@ -47,4 +47,10 @@ public class GlobalExceptionHandler {
     public void handleException(OutdatedStockException exception){
        
     }
+    
+    @ResponseBody
+    @ExceptionHandler(value = NoStockFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public void handleException(NoStockFoundException exception){
+    }
 }

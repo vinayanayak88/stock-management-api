@@ -1,13 +1,10 @@
 package com.commerce.service.handler;
 
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -24,6 +21,7 @@ import com.commerce.domain.StockModel;
 import com.commerce.domain.StockStatistics;
 import com.commerce.domain.StockSummary;
 import com.commerce.domain.TopSellingProduct;
+import com.commerce.exception.NoStockFoundException;
 import com.commerce.exception.OutdatedStockException;
 import com.commerce.service.StockService;
 import com.commerce.util.DateFormatUtil;
@@ -75,33 +73,19 @@ public class StockServiceHandler implements StockService {
 	}
 
 	@Override
-	public StockJson findStockbyProductId(String productId) {
+	public StockJson findStockbyProductId(String productId) throws NoStockFoundException {
+		if(stockDataMap.get(productId) == null) { 
+			throw new NoStockFoundException(Constant.NO_STOCK_FOUND);
+		}
 		return StockToStockJsonConverter.convert(stockStatisticsToStockConverter.convert(stockDataMap.get(productId)));
+		
 	}
 
 	@Override
 	public StockSummary getStatistics(String range) {
-//		 Map<String, StockStatistics> result = stockDataMap.entrySet().stream().limit(3)
-//	                .sorted(Map.Entry.comparingByValue(new StockComparator()))
-//	                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-//	                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-//		 List<StockModel> topAvailableList = result.entrySet().stream().map(x -> {
-//			 if(range.equalsIgnoreCase("today")) {
-//				 Calendar cal = util.getMidnightTimeStamp();
-//				if( x.getValue().getTimeStamp() >= cal.getTimeInMillis()) {
-//					 StockModel model = new StockModel();
-//					 model.setId(x.getValue().getId());
-//					 model.setProductId(x.getValue().getProductId());
-//					 model.setQuantity(x.getValue().getQuantity());
-//					 model.setTimeStamp(util.convertTimeStampToString(x.getValue().getTimeStamp()));
-//					 return model;
-//				}
-//			 }
-//			return null;
-//		 }).collect(Collectors.toList());
-		 
 		Calendar cal = util.getMidnightTimeStamp();
 		long now = util.convertTimeStampToUTCTime(System.currentTimeMillis());
+		//filters the stockDataMap by 'today' or 'lastmonth' and then sorts and extracts the top 3 items available products
 		Map<String, StockStatistics> result = stockDataMap.entrySet().stream()
 				.filter(filterStocksByTime(range, cal, now))
 				.limit(3).sorted(Map.Entry.comparingByValue(new StockComparator())).collect(Collectors.toMap(
@@ -114,11 +98,9 @@ public class StockServiceHandler implements StockService {
 			 model.setQuantity(x.getValue().getQuantity());
 			 model.setTimeStamp(util.convertTimeStampToString(x.getValue().getTimeStamp()));
 			 return model;
-			 
 		 }).collect(Collectors.toList());
-	                
-		 
-		 List<TopSellingProduct> topSellingList = stockDataMap.entrySet().stream().map(x -> {
+		//filters the stockDataMap by 'today' or 'lastmonth' and then sorts and extracts the top 3 items selling products
+		 List<TopSellingProduct> topSellingList = stockDataMap.entrySet().stream().filter(filterStocksByTime(range, cal, now)).map(x -> {
 			 TopSellingProduct product = new TopSellingProduct();
 			product.setProductId(x.getValue().getProductId());
 			product.setItemsSold(x.getValue().getItemsSold());
@@ -134,10 +116,17 @@ public class StockServiceHandler implements StockService {
 	}
 
 	private Predicate<? super Entry<String, StockStatistics>> filterStocksByTime(String range, Calendar cal, long now) {
-		return x -> (range.equalsIgnoreCase("today") && (x.getValue().getTimeStamp() >= cal.getTimeInMillis() && x.getValue().getTimeStamp() <= now))  
-				;
+		return x -> (range.equalsIgnoreCase("today")
+				&& (x.getValue().getTimeStamp() >= cal.getTimeInMillis() && x.getValue().getTimeStamp() <= now))
+				|| (range.equalsIgnoreCase("lastMonth")
+						&& (x.getValue().getTimeStamp() >= util.calulateLastMonthTimeStamp()
+								&& x.getValue().getTimeStamp() <= now));
 	}
 
+	public static Map<String, StockStatistics> getStockdatamap() {
+		return stockDataMap;
+	}
 	
-
+	
+	
 }

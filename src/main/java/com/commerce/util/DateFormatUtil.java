@@ -11,9 +11,10 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.joda.time.Days;
-import org.joda.time.LocalDate;
 import org.springframework.stereotype.Component;
+
+import com.commerce.constant.Constant;
+import com.commerce.exception.ValidationException;
 
 /**
  * @author vinayanayak
@@ -52,6 +53,18 @@ public class DateFormatUtil {
 		cal.add(Calendar.MONTH, -1);
 		return cal.getTimeInMillis();
 		
+	}
+	
+	public long convertStringToTimeStamp(String timeStamp) {
+		Date date = null;
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'", Locale.getDefault());
+		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		try {
+			 date = simpleDateFormat.parse(timeStamp);
+		} catch (Exception e) {
+			throw new ValidationException(Constant.INVALID_DATETIME);
+		}
+		return date.getTime();
 	}
 
 }

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.commerce.domain.StockJson;
 import com.commerce.domain.StockModel;
 import com.commerce.domain.StockSummary;
+import com.commerce.exception.NoStockFoundException;
 import com.commerce.service.StockService;
 
 /**
@@ -44,7 +45,7 @@ public class StockController {
 	}
 	
 	@RequestMapping(value = "/stock/{productId}", method = RequestMethod.GET)
-	public ResponseEntity<StockJson> findStockbyProductId(@PathVariable String productId) {
+	public ResponseEntity<StockJson> findStockbyProductId(@PathVariable String productId) throws NoStockFoundException {
 		logger.info(StockController.class + " : Received get request for stock ");
 		StockJson stock = stockService.findStockbyProductId(productId);
 

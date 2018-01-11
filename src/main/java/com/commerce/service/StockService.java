@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.commerce.domain.StockModel;
 import com.commerce.domain.StockSummary;
+import com.commerce.exception.NoStockFoundException;
 import com.commerce.domain.StockJson;
 
 /**
@@ -19,8 +20,8 @@ public interface StockService {
 	
 	public StockModel createStock(StockModel stock) ;
 	
-	public StockJson findStockbyProductId(String productId);
+	public StockJson findStockbyProductId(String productId)  throws NoStockFoundException;
 	
-	public StockSummary getStatistics(String range);
+	public StockSummary getStatistics(String range) ;
 
 }
