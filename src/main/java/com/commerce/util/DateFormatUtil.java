@@ -58,13 +58,12 @@ public class DateFormatUtil {
 	public long convertStringToTimeStamp(String timeStamp) {
 		Date date = null;
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'", Locale.getDefault());
-		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		try {
 			 date = simpleDateFormat.parse(timeStamp);
 		} catch (Exception e) {
 			throw new ValidationException(Constant.INVALID_DATETIME);
 		}
-		return date.getTime();
+		return convertTimeStampToUTCTime(date.getTime());
 	}
 
 }

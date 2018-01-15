@@ -49,7 +49,9 @@ public class StockServiceHandler implements StockService {
 	
 	private static final Map<String, StockStatistics> stockDataMap = new ConcurrentHashMap<>();
 	
-
+	/**
+	 * Service to store the stock data in stockDataMap. If the map contains the newest stock for the product Id then the stock is ignored else the stock is updated.
+	 */
 	@Override
 	public StockModel createStock(StockModel stock)  {
 		StockStatistics newStock = stockToStatiscticsConverter.convert(stock);
@@ -72,6 +74,9 @@ public class StockServiceHandler implements StockService {
 		return stock;
 	}
 
+	/**
+	 * Service to find the stock by productId
+	 */
 	@Override
 	public StockJson findStockbyProductId(String productId) throws NoStockFoundException {
 		if(stockDataMap.get(productId) == null) { 
@@ -81,6 +86,9 @@ public class StockServiceHandler implements StockService {
 		
 	}
 
+	/**
+	 * Calculates and returns combined statistics of the stocks for 'today' or 'lastMonth' based on the request parameter in the URI based on statistics map (stockDataMap).
+	 */
 	@Override
 	public StockSummary getStatistics(String range) {
 		Calendar cal = util.getMidnightTimeStamp();
